@@ -64,6 +64,7 @@ class TrainingConfig:
     resume_from: str | None = None
     checkpoint_dir: str = "models/checkpoints"
     experiments_dir: str = "experiments"
+    backup_dir: str | None = None
     experiment_id: str | None = None
     is_synthetic: bool = False
 
@@ -121,6 +122,7 @@ class ChangeDetectionTrainer:
             checkpoint_dir=config.checkpoint_dir,
             model_name=config.model_name,
             dataset_name=config.dataset_name,
+            backup_dir=config.backup_dir,
         )
         self.exp_logger = ExperimentLogger(
             experiments_dir=config.experiments_dir,

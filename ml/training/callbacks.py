@@ -58,9 +58,13 @@ class ModelCheckpointManager:
         checkpoint_dir: str | Path,
         model_name: str,
         dataset_name: str,
+        backup_dir: str | Path | None = None,
     ) -> None:
         self.checkpoint_dir = Path(checkpoint_dir)
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        self.backup_dir = Path(backup_dir) if backup_dir else None
+        if self.backup_dir:
+            self.backup_dir.mkdir(parents=True, exist_ok=True)
         safe_ds = dataset_name.lower().replace(" ", "_")
         self.best_path = self.checkpoint_dir / f"{model_name}_{safe_ds}_best.pt"
         self.latest_path = self.checkpoint_dir / f"{model_name}_{safe_ds}_latest.pt"
@@ -76,6 +80,8 @@ class ModelCheckpointManager:
         is_best: bool,
         training_status: str = "fine_tuned",
     ) -> Path:
+        import shutil
+
         payload = {
             "epoch": epoch,
             "best_metric": best_metric,
@@ -88,8 +94,19 @@ class ModelCheckpointManager:
             "saved_at": datetime.now(timezone.utc).isoformat(),
         }
         torch.save(payload, self.latest_path)
+        if self.backup_dir:
+            try:
+                shutil.copy2(self.latest_path, self.backup_dir / self.latest_path.name)
+            except Exception as exc:
+                print(f"Warning: checkpoint backup to {self.backup_dir} failed: {exc}")
+
         if is_best:
             torch.save(payload, self.best_path)
+            if self.backup_dir:
+                try:
+                    shutil.copy2(self.best_path, self.backup_dir / self.best_path.name)
+                except Exception as exc:
+                    print(f"Warning: best checkpoint backup to {self.backup_dir} failed: {exc}")
             return self.best_path
         return self.latest_path
 

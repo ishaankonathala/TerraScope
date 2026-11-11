@@ -86,6 +86,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--resume", default=None)
     parser.add_argument("--no-pretrained", action="store_true")
     parser.add_argument("--bands", nargs="+", default=["B04", "B03", "B02"])
+    parser.add_argument("--checkpoint-dir", default="models/checkpoints")
+    parser.add_argument("--experiments-dir", default="experiments")
+    parser.add_argument("--backup-dir", default=None)
+    parser.add_argument("--num-workers", type=int, default=0)
+    parser.add_argument("--weight-decay", type=float, default=1e-4)
+    parser.add_argument("--early-stopping-patience", type=int, default=8)
     return parser.parse_args()
 
 
@@ -97,6 +103,7 @@ def main() -> None:
         data_dir=args.data_dir,
         batch_size=args.batch_size,
         patch_size=args.patch_size,
+        num_workers=args.num_workers,
         oscd_bands=tuple(args.bands),
     )
     cfg = TrainingConfig(
@@ -109,12 +116,18 @@ def main() -> None:
         epochs=args.epochs,
         batch_size=args.batch_size,
         lr=args.lr,
+        weight_decay=args.weight_decay,
         loss=args.loss,
         optimizer=args.optimizer,
         scheduler=args.scheduler,
         device=args.device,
         seed=args.seed,
         resume_from=args.resume,
+        checkpoint_dir=args.checkpoint_dir,
+        experiments_dir=args.experiments_dir,
+        backup_dir=args.backup_dir,
+        early_stopping_patience=args.early_stopping_patience,
+        num_workers=args.num_workers,
     )
     summary = run_training(cfg, train_loader, val_loader)
     print(f"Training completed: {summary['experiment_id']} | Best Val F1: {summary['best_val_f1']}")
