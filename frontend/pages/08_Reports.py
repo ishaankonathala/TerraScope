@@ -19,6 +19,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from frontend.components.client import get_app_client
 from frontend.components.theme import (
     get_theme_colors,
+    render_html,
     render_metric_cards,
     render_research_note,
     setup_page,
@@ -35,7 +36,7 @@ client = get_app_client()
 results = client.list_results(limit=50)
 
 if not results:
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border: 1px dashed {colors['border']}; border-radius: 8px; padding: 32px; text-align: center;">
             <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 600; color: {colors['forest']}; margin-bottom: 6px;">
@@ -45,8 +46,7 @@ if not results:
                 Perform an inference run in the <strong>Change Detection</strong> studio to generate auditable research reports.
             </p>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
     st.stop()
 
@@ -63,7 +63,7 @@ with col_sel:
 
 with col_stat:
     is_geo = bool(geo.get("is_georeferenced"))
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 14px 18px; margin-top: 24px;">
             <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: {colors['sage']}; font-weight: 700; margin-bottom: 4px;">
@@ -73,8 +73,7 @@ with col_stat:
                 {rid}
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 st.write("")
@@ -96,13 +95,12 @@ render_metric_cards(
 st.write("")
 
 # Detailed Summary Table
-st.markdown(
+render_html(
     f"""
     <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 600; color: {colors['forest']}; margin-bottom: 8px;">
         Deterministic Audit Provenance
     </h4>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 audit_rows = [

@@ -2,8 +2,19 @@
 
 from __future__ import annotations
 
+import textwrap
 from typing import Any
 import streamlit as st
+
+
+def clean_html(html_str: str) -> str:
+    """Dedent and strip HTML to prevent Markdown parser from interpreting indentation as code blocks."""
+    return textwrap.dedent(html_str).strip()
+
+
+def render_html(html_str: str) -> None:
+    """Safely render HTML in Streamlit without code-block indentation bugs."""
+    st.markdown(clean_html(html_str), unsafe_allow_html=True)
 
 
 def get_theme_colors(theme: str = "dark") -> dict[str, str]:
@@ -151,47 +162,82 @@ def _generate_css(colors: dict[str, str]) -> str:
         margin: 0 0 12px 0;
     }}
 
-    /* Editorial Metric Cards */
-    .stat-strip {{
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 14px;
-        margin: 18px 0;
-    }}
-
-    .stat-item {{
-        background: {colors['surface']};
+    /* Native Metric Cards Styled for TerraScope */
+    div[data-testid="stMetric"] {{
+        background-color: {colors['surface']};
         border: 1px solid {colors['border']};
-        border-radius: 6px;
-        padding: 16px 18px;
-        transition: border-color 0.15s ease;
+        border-radius: 8px;
+        padding: 14px 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        min-height: 108px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        overflow: hidden;
     }}
 
-    .stat-item:hover {{
+    div[data-testid="stMetric"]:hover {{
         border-color: {colors['border_focus']};
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }}
 
-    .stat-label {{
-        font-size: 0.72rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: {colors['text_muted']};
-        margin-bottom: 6px;
+    div[data-testid="stMetricLabel"] {{
+        color: {colors['text_muted']} !important;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+        margin-bottom: 2px !important;
     }}
 
-    .stat-value {{
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: {colors['text']};
-        line-height: 1.2;
+    div[data-testid="stMetricLabel"] p {{
+        margin: 0 !important;
+        font-size: 0.72rem !important;
+        line-height: 1.3 !important;
+        white-space: normal !important;
+        word-break: break-word !important;
     }}
 
-    .stat-detail {{
-        font-size: 0.76rem;
-        color: {colors['text_muted']};
-        margin-top: 4px;
+    div[data-testid="stMetricValue"] {{
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-size: 1.55rem !important;
+        font-weight: 700 !important;
+        color: {colors['text']} !important;
+        line-height: 1.2 !important;
+        margin-top: 4px !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+    }}
+
+    div[data-testid="stMetricValue"] div {{
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-size: 1.55rem !important;
+        font-weight: 700 !important;
+        color: {colors['text']} !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+    }}
+
+    div[data-testid="stMetricDelta"] {{
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 0.76rem !important;
+        color: {colors['text_muted']} !important;
+        font-weight: 400 !important;
+        margin-top: 4px !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+    }}
+
+    div[data-testid="stMetricDelta"] div {{
+        color: {colors['text_muted']} !important;
+        font-size: 0.76rem !important;
+    }}
+
+    /* Hide the upward/downward delta arrow for neutral subtitles */
+    div[data-testid="stMetricDelta"] svg {{
+        display: none !important;
     }}
 
     /* Status Badges */
@@ -316,22 +362,14 @@ def setup_page(title: str, subtitle: str | None = None, icon: str = "🛰️") -
 
     # Sidebar Header
     with st.sidebar:
-        st.markdown(
-            f"""
-            <div style="padding: 10px 0 16px 0;">
-                <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700; color: {colors['text']}; letter-spacing: -0.01em;">
-                    TerraScope
-                </div>
-                <div style="font-size: 0.76rem; font-weight: 600; color: {colors['terracotta']}; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;">
-                    Satellite Change Intelligence
-                </div>
-                <div style="font-size: 0.76rem; color: {colors['text_muted']}; margin-top: 4px; font-style: italic;">
-                    "See how the Earth changes."
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
+        sidebar_html = (
+            f'<div style="padding: 10px 0 16px 0;">'
+            f'<div style="font-family: \'Space Grotesk\', sans-serif; font-size: 1.35rem; font-weight: 700; color: {colors["text"]}; letter-spacing: -0.01em;">TerraScope</div>'
+            f'<div style="font-size: 0.76rem; font-weight: 600; color: {colors["terracotta"]}; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;">Satellite Change Intelligence</div>'
+            f'<div style="font-size: 0.76rem; color: {colors["text_muted"]}; margin-top: 4px; font-style: italic;">"See how the Earth changes."</div>'
+            f'</div>'
         )
+        st.markdown(sidebar_html, unsafe_allow_html=True)
 
         theme_mode = st.radio(
             "Interface Mode",
@@ -350,64 +388,42 @@ def setup_page(title: str, subtitle: str | None = None, icon: str = "🛰️") -
 
     # Hero Banner
     sub_text = subtitle or "Multi-Temporal Earth Observation & Land-Use Change Detection"
-    st.markdown(
-        f"""
-        <div class="terrascope-hero">
-            <span class="terrascope-eyebrow">TERRASCOPE INTELLIGENCE</span>
-            <h1 class="terrascope-title">{title}</h1>
-            <p class="terrascope-subtitle">{sub_text}</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    hero_html = (
+        f'<div class="terrascope-hero">'
+        f'<span class="terrascope-eyebrow">TERRASCOPE INTELLIGENCE</span>'
+        f'<h1 class="terrascope-title">{title}</h1>'
+        f'<p class="terrascope-subtitle">{sub_text}</p>'
+        f'</div>'
     )
+    st.markdown(hero_html, unsafe_allow_html=True)
 
     return current_theme
 
 
 def render_step_header(step_number: int, title: str, description: str | None = None) -> None:
     """Render a guided workflow step header."""
-    theme = st.session_state.get("ui_theme", "dark")
-    colors = get_theme_colors(theme)
     desc_html = f"<div class='step-desc'>{description}</div>" if description else ""
-    st.markdown(
-        f"""
-        <div class="workflow-step">
-            <span class="step-badge">STEP {step_number}</span>
-            <h3 class="step-title">{title}</h3>
-        </div>
-        {desc_html}
-        """,
-        unsafe_allow_html=True,
+    header_html = (
+        f'<div class="workflow-step">'
+        f'<span class="step-badge">STEP {step_number}</span>'
+        f'<h3 class="step-title">{title}</h3>'
+        f'</div>'
+        f'{desc_html}'
     )
+    st.markdown(header_html, unsafe_allow_html=True)
 
 
 def render_metric_cards(cards: list[dict[str, Any]]) -> None:
-    """Render clean, editorial metric cards without generic AI boxes."""
-    theme = st.session_state.get("ui_theme", "dark")
-    colors = get_theme_colors(theme)
-
-    cols = st.columns(len(cards))
+    """Render clean, responsive metric cards using native Streamlit metrics styled with TerraScope theme."""
+    cols = st.columns(len(cards), gap="small")
     for col, card in zip(cols, cards):
         with col:
-            sub = f"<div class='stat-detail'>{card.get('sub', '')}</div>" if card.get("sub") else ""
-            badge = ""
-            if card.get("status") == "ready":
-                badge = "<span class='badge badge-ready'>VERIFIED</span>"
-            elif card.get("status") == "alert":
-                badge = "<span class='badge badge-alert'>ACTION</span>"
-
-            st.markdown(
-                f"""
-                <div class="stat-item">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span class="stat-label">{card['title']}</span>
-                        {badge}
-                    </div>
-                    <div class="stat-value">{card['value']}</div>
-                    {sub}
-                </div>
-                """,
-                unsafe_allow_html=True,
+            sub = card.get("sub")
+            col.metric(
+                label=card["title"],
+                value=card["value"],
+                delta=sub if sub else None,
+                delta_color="off",
             )
 
 
@@ -424,12 +440,10 @@ def render_research_note(title_or_text: str, text: str = "", is_warning: bool = 
 
     border_color = colors["terracotta"] if is_warning else colors["forest_light"]
     title_color = colors["terracotta"] if is_warning else colors["sage"]
-    st.markdown(
-        f"""
-        <div class="research-note" style="border-left-color: {border_color};">
-            <div class="research-note-title" style="color: {title_color};">{note_title}</div>
-            <div>{note_text}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    note_html = (
+        f'<div class="research-note" style="border-left-color: {border_color};">'
+        f'<div class="research-note-title" style="color: {title_color};">{note_title}</div>'
+        f'<div>{note_text}</div>'
+        f'</div>'
     )
+    st.markdown(note_html, unsafe_allow_html=True)

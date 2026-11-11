@@ -151,14 +151,12 @@ if before_bytes and after_bytes:
         else:
             st.info(f"Loaded {after_name} ({len(after_bytes) / 1024:.1f} KB)")
 else:
-    st.markdown(
-        f"""
-        <div style="background: {colors['surface_subtle']}; border: 1px dashed {colors['border']}; border-radius: 6px; padding: 20px; text-align: center; color: {colors['text_muted']}; font-size: 0.9rem;">
-            Upload two images above or choose a demonstration sample to begin analysis.
-        </div>
-        """,
-        unsafe_allow_html=True,
+    placeholder_html = (
+        f'<div style="background: {colors["surface_subtle"]}; border: 1px dashed {colors["border"]}; border-radius: 6px; padding: 20px; text-align: center; color: {colors["text_muted"]}; font-size: 0.9rem;">'
+        f'Upload two images above or choose a demonstration sample to begin analysis.'
+        f'</div>'
     )
+    st.markdown(placeholder_html, unsafe_allow_html=True)
 
 # ==============================================================================
 # STEP 2: CONFIGURE DETECTION
@@ -319,19 +317,17 @@ if active_id:
 
         # Plain-English Executive Change Summary
         pct = res["change_percentage"]
-        st.markdown(
-            f"""
-            <div style="background: {colors['surface']}; border: 1px solid {colors['border']}; border-left: 4px solid {colors['terracotta']}; border-radius: 6px; padding: 16px 20px; margin-bottom: 20px;">
-                <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 700; color: {colors['text']};">
-                    Detected Changes in Approximately {pct:.2f}% of the Monitored Footprint
-                </div>
-                <div style="font-size: 0.88rem; color: {colors['text_muted']}; margin-top: 4px; line-height: 1.5;">
-                    Across {res['total_valid_pixels']:,} valid surface pixels analyzed by <b>{res['model_name']}</b>, {res['changed_pixels']:,} pixels exceeded the {res['threshold']} probability threshold.
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
+        summary_html = (
+            f'<div style="background: {colors["surface"]}; border: 1px solid {colors["border"]}; border-left: 4px solid {colors["terracotta"]}; border-radius: 6px; padding: 16px 20px; margin-bottom: 20px;">'
+            f'<div style="font-family: \'Space Grotesk\', sans-serif; font-size: 1.15rem; font-weight: 700; color: {colors["text"]};">'
+            f'Detected Changes in Approximately {pct:.2f}% of the Monitored Footprint'
+            f'</div>'
+            f'<div style="font-size: 0.88rem; color: {colors["text_muted"]}; margin-top: 4px; line-height: 1.5;">'
+            f'Across {res["total_valid_pixels"]:,} valid surface pixels analyzed by <b>{res["model_name"]}</b>, {res["changed_pixels"]:,} pixels exceeded the {res["threshold"]} probability threshold.'
+            f'</div>'
+            f'</div>'
         )
+        st.markdown(summary_html, unsafe_allow_html=True)
 
         # Quantified Metric Cards
         render_metric_cards(

@@ -16,7 +16,12 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from frontend.components.client import get_app_client
-from frontend.components.theme import get_theme_colors, render_research_note, setup_page
+from frontend.components.theme import (
+    get_theme_colors,
+    render_html,
+    render_research_note,
+    setup_page,
+)
 from ml.explainability import INTERPRETABILITY_DISCLAIMER
 
 setup_page(
@@ -29,7 +34,7 @@ colors = get_theme_colors()
 client = get_app_client()
 
 # Educational architecture attribution overview
-st.markdown(
+render_html(
     f"""
     <div style="margin-bottom: 20px;">
         <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 600; color: {colors['forest']}; margin-bottom: 8px;">
@@ -39,14 +44,13 @@ st.markdown(
             Different neural architectures localize surface transitions using fundamentally distinct mathematical mechanisms. Below is how each architecture explains its spatial reasoning:
         </p>
     </div>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 c1, c2, c3 = st.columns(3)
 
 with c1:
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 18px; height: 100%;">
             <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: {colors['sage']}; font-weight: 700; margin-bottom: 4px;">
@@ -59,12 +63,11 @@ with c1:
                 Calculates the gradient of the predicted change score with respect to the final convolutional feature maps. Warm regions highlight specific pixel clusters that triggered class activation.
             </p>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 with c2:
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 18px; height: 100%;">
             <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: {colors['terracotta']}; font-weight: 700; margin-bottom: 4px;">
@@ -77,12 +80,11 @@ with c2:
                 Recursively multiplies raw self-attention weight matrices across all transformer encoder blocks. Reveals how information flows from all-to-all spatial patches into the change decision.
             </p>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 with c3:
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 18px; height: 100%;">
             <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: {colors['forest']}; font-weight: 700; margin-bottom: 4px;">
@@ -95,8 +97,7 @@ with c3:
                 Aggregates self-attention distributions computed within shifted local windows across pyramid stages. Highlights structured boundary correlations without quadratic memory overhead.
             </p>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 st.write("")
@@ -110,15 +111,14 @@ tab1, tab2 = st.tabs(["Inspect Prior Analysis Results", "Side-by-Side Model Comp
 with tab1:
     results = client.list_results(limit=30)
     if not results:
-        st.markdown(
+        render_html(
             f"""
             <div style="background-color: {colors['card_bg']}; border: 1px dashed {colors['border']}; border-radius: 8px; padding: 24px; text-align: center;">
                 <p style="color: {colors['muted']}; font-size: 0.92rem; margin: 0;">
                     No completed analysis records available. Run an inference with <strong>Enable Explainable AI (XAI)</strong> toggled on in the <strong>Change Detection</strong> studio first.
                 </p>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
     else:
         col_sel, col_info = st.columns([2, 1])
@@ -132,14 +132,13 @@ with tab1:
 
         with col_info:
             xai_meta = res.get("explainability") or {}
-            st.markdown(
+            render_html(
                 f"""
                 <div style="background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 12px 16px; margin-top: 24px;">
                     <div style="font-size: 0.82rem; color: {colors['muted']};">Architecture: <strong style="color: {colors['forest']};">{res.get('model_name')}</strong></div>
                     <div style="font-size: 0.82rem; color: {colors['muted']};">Attribution Method: <strong style="color: {colors['terracotta']};">{xai_meta.get('method', 'None Generated')}</strong></div>
                 </div>
-                """,
-                unsafe_allow_html=True,
+                """
             )
 
         panel_bytes = client.get_artifact_bytes(rid, "xai_panel")
@@ -164,7 +163,7 @@ with tab1:
             st.warning("No feature attribution map was generated for this result. You can run live XAI generation in the second tab.")
 
 with tab2:
-    st.markdown(
+    render_html(
         f"""
         <div style="margin-bottom: 16px;">
             <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem; font-weight: 600; color: {colors['forest']}; margin-bottom: 4px;">
@@ -174,8 +173,7 @@ with tab2:
                 Pass an aligned image pair through all three neural backbones simultaneously to compare where each model focuses its attention.
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
     source_choice = st.radio(
@@ -233,7 +231,7 @@ with tab2:
                             )
                             xai_img = client.get_artifact_bytes(out["result_id"], "xai_overlay")
                             mask_img = client.get_artifact_bytes(out["result_id"], "overlay")
-                            st.markdown(
+                            render_html(
                                 f"""
                                 <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; color: {colors['forest']}; margin-bottom: 2px;">
                                     {m_title}
@@ -241,8 +239,7 @@ with tab2:
                                 <div style="font-size: 0.78rem; color: {colors['muted']}; margin-bottom: 8px;">
                                     {m_method}
                                 </div>
-                                """,
-                                unsafe_allow_html=True,
+                                """
                             )
                             if xai_img:
                                 st.image(xai_img, caption="Feature Attribution Heatmap", use_container_width=True)

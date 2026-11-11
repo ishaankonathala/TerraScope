@@ -18,7 +18,12 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from frontend.components.client import get_app_client
-from frontend.components.theme import get_theme_colors, render_research_note, setup_page
+from frontend.components.theme import (
+    get_theme_colors,
+    render_html,
+    render_research_note,
+    setup_page,
+)
 from ml.preprocessing.image_loader import SUPPORTED_IMAGE_EXTENSIONS
 
 setup_page(
@@ -33,7 +38,7 @@ ds_resp = client.get_datasets()
 datasets = ds_resp.get("datasets", [])
 
 # Dataset Catalog Header
-st.markdown(
+render_html(
     f"""
     <div style="margin-bottom: 20px;">
         <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 600; color: {colors['forest']}; margin-bottom: 8px;">
@@ -43,8 +48,7 @@ st.markdown(
             Rigorous evaluation of bi-temporal change detection requires canonical datasets with verified spatial alignment, ground-truth binary masks, and reproducible splits.
         </p>
     </div>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 summary_rows = []
@@ -84,7 +88,7 @@ for d in datasets:
     tag_label = "Available Locally" if is_avail else "Download Required"
 
     with st.expander(f"{d['name']} — {tag_label}", expanded=is_avail):
-        st.markdown(
+        render_html(
             f"""
             <div style="margin-bottom: 12px;">
                 <div style="font-size: 0.88rem; color: {colors['muted']}; line-height: 1.5; margin-bottom: 8px;">
@@ -94,23 +98,21 @@ for d in datasets:
                     <strong>Local Directory:</strong> <code>{d['path']}</code>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
         if d.get("official_url"):
             st.markdown(f"**Official Reference & License:** [{d['official_url']}]({d['official_url']})")
 
         if not is_avail:
-            st.markdown(
+            render_html(
                 f"""
                 <div style="background-color: {colors['card_bg']}; border: 1px dashed {colors['border']}; border-radius: 6px; padding: 16px; margin-top: 10px;">
                     <div style="font-size: 0.88rem; color: {colors['muted']}; margin-bottom: 8px;">
                         To acquire and prepare this benchmark dataset, execute the automated downloader or place the extracted archives in <code>{d['path']}</code>:
                     </div>
                 </div>
-                """,
-                unsafe_allow_html=True,
+                """
             )
             if d["id"] == "levir_cd":
                 st.code(

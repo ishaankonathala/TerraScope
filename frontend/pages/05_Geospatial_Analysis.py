@@ -23,6 +23,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from frontend.components.client import get_app_client
 from frontend.components.theme import (
     get_theme_colors,
+    render_html,
     render_metric_cards,
     render_research_note,
     setup_page,
@@ -41,7 +42,7 @@ client = get_app_client()
 results = client.list_results(limit=30)
 
 if not results:
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border: 1px dashed {colors['border']}; border-radius: 8px; padding: 32px; text-align: center;">
             <div style="font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 600; color: {colors['forest']}; margin-bottom: 6px;">
@@ -51,8 +52,7 @@ if not results:
                 Run an inference on a GeoTIFF or satellite image pair in the <strong>Change Detection</strong> studio first.
             </p>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
     st.stop()
 
@@ -71,7 +71,7 @@ with col_stat:
     is_geo = bool(geo.get("is_georeferenced"))
     status_color = colors["forest"] if is_geo else colors["terracotta"]
     status_label = "Georeferenced (Real-World Area Valid)" if is_geo else "Image-Relative (Unprojected)"
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 14px 18px; margin-top: 24px;">
             <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: {colors['sage']}; font-weight: 700; margin-bottom: 4px;">
@@ -81,14 +81,13 @@ with col_stat:
                 {status_label}
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 st.write("")
 
 if not is_geo:
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border-left: 4px solid {colors['terracotta']}; padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
             <div style="font-weight: 600; color: {colors['charcoal']}; font-size: 0.92rem; margin-bottom: 4px;">
@@ -98,8 +97,7 @@ if not is_geo:
                 This analysis was performed on standard non-georeferenced images (e.g. PNG/JPEG). Physical metric units (such as hectares, square meters, and geodetic polygons) cannot be honestly computed without coordinate reference system (CRS) headers and an affine geotransform matrix. Only pixel-relative proportions are reported below.
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
     render_metric_cards(
         [
@@ -162,7 +160,7 @@ else:
     )
     if fmap is not None:
         st.write("")
-        st.markdown(
+        render_html(
             f"""
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
                 <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 600; color: {colors['forest']}; margin: 0;">
@@ -170,15 +168,14 @@ else:
                 </h4>
                 <span style="font-size: 0.82rem; color: {colors['muted']};">True spatial bounds &bull; OpenStreetMap & Esri World Imagery</span>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
         components.html(fmap.get_root().render(), height=520, scrolling=False)
 
     top_regions = geo.get("top_regions", [])
     if top_regions:
         st.write("")
-        st.markdown(
+        render_html(
             f"""
             <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 600; color: {colors['forest']}; margin-bottom: 8px;">
                 Polygon-Level Change Geometry Breakdown
@@ -186,8 +183,7 @@ else:
             <p style="font-size: 0.88rem; color: {colors['muted']}; margin-bottom: 12px;">
                 Detected change clusters vectorized into geodetic polygon boundaries with centroid coordinates and physical area calculation.
             </p>
-            """,
-            unsafe_allow_html=True,
+            """
         )
         reg_df = pd.DataFrame(top_regions)
         if "area_ha" in reg_df.columns:
@@ -203,13 +199,12 @@ render_research_note(
 st.write("")
 
 # Geospatial Exports
-st.markdown(
+render_html(
     f"""
     <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 600; color: {colors['forest']}; margin-bottom: 12px;">
         Export GIS Formats
     </h4>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 c1, c2 = st.columns(2)

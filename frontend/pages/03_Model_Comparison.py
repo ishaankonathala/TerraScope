@@ -19,7 +19,12 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from frontend.components.client import get_app_client
-from frontend.components.theme import get_theme_colors, render_research_note, setup_page
+from frontend.components.theme import (
+    get_theme_colors,
+    render_html,
+    render_research_note,
+    setup_page,
+)
 
 setup_page(
     "Architecture Comparison & Benchmarking",
@@ -34,7 +39,7 @@ comp_rows = exp_data.get("comparison_table", [])
 summaries = exp_data.get("experiments", [])
 
 # Architecture Overview in human-understandable terms
-st.markdown(
+render_html(
     f"""
     <div style="margin-bottom: 24px;">
         <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 600; color: {colors['forest']}; margin-bottom: 8px;">
@@ -44,14 +49,13 @@ st.markdown(
             Detecting surface transformation between bi-temporal satellite acquisitions requires balancing micro-level boundary precision (individual building walls, narrow road alignments) with macro-level spatial context (agricultural parcel shifts, reservoir depletion).
         </p>
     </div>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 arch_col1, arch_col2, arch_col3 = st.columns(3)
 
 with arch_col1:
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 20px; height: 100%;">
             <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: {colors['sage']}; font-weight: 700; margin-bottom: 6px;">
@@ -68,12 +72,11 @@ with arch_col1:
                 <strong>Limitation:</strong> Receptive field grows gradually; vulnerable to false positives from seasonal surface variance.
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 with arch_col2:
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 20px; height: 100%;">
             <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: {colors['terracotta']}; font-weight: 700; margin-bottom: 6px;">
@@ -90,12 +93,11 @@ with arch_col2:
                 <strong>Limitation:</strong> Patch tokenization can blur fine parcel boundaries; quadratic memory scaling with tile dimension.
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 with arch_col3:
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border: 1px solid {colors['border']}; border-radius: 8px; padding: 20px; height: 100%;">
             <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: {colors['forest']}; font-weight: 700; margin-bottom: 6px;">
@@ -112,8 +114,7 @@ with arch_col3:
                 <strong>Limitation:</strong> Requires larger training datasets to fully converge without overfitting to training distributions.
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 st.write("")
@@ -126,7 +127,7 @@ render_research_note(
 st.write("")
 
 # Comparative Benchmark Table
-st.markdown(
+render_html(
     f"""
     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
         <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 600; color: {colors['forest']}; margin: 0;">
@@ -134,8 +135,7 @@ st.markdown(
         </h4>
         <span style="font-size: 0.82rem; color: {colors['muted']};">Standardized 0.50 decision threshold &bull; LEVIR-CD & OSCD protocols</span>
     </div>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 if comp_rows:
@@ -170,7 +170,7 @@ else:
 evaluated_rows = [r for r in comp_rows if r.get("f1_score") not in ("Not evaluated", None)]
 
 if not evaluated_rows:
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border: 1px dashed {colors['border']}; border-radius: 8px; padding: 24px; margin-top: 16px;">
             <div style="font-weight: 600; color: {colors['forest']}; font-size: 0.95rem; margin-bottom: 6px;">
@@ -183,8 +183,7 @@ if not evaluated_rows:
                 Standard Training & Evaluation Commands:
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
     st.code(
         "# Train baseline CNN and Transformer models on LEVIR-CD\n"

@@ -19,7 +19,12 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from frontend.components.client import get_app_client
-from frontend.components.theme import get_theme_colors, render_research_note, setup_page
+from frontend.components.theme import (
+    get_theme_colors,
+    render_html,
+    render_research_note,
+    setup_page,
+)
 from ml.satellite import NDVI_SCIENTIFIC_NOTE, SENTINEL2_BANDS
 
 setup_page(
@@ -36,7 +41,7 @@ is_initialized = bool(gee_status.get("initialized"))
 
 # Connection Status Banner
 if is_initialized:
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border-left: 4px solid {colors['forest']}; border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 24px;">
             <div style="font-weight: 700; color: {colors['forest']}; font-size: 0.95rem; margin-bottom: 4px;">
@@ -46,13 +51,12 @@ if is_initialized:
                 Authenticated via <strong>{gee_status.get('auth_mode', 'standard')}</strong> &bull; GCP Project: <code>{gee_status.get('project_id')}</code> &bull; Catalog: <code>COPERNICUS/S2_SR_HARMONIZED</code>
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 else:
     status_code = gee_status.get("status_code", "disabled")
     status_msg = gee_status.get("message", "GEE integration is currently in offline/mock mode.")
-    st.markdown(
+    render_html(
         f"""
         <div style="background-color: {colors['card_bg']}; border-left: 4px solid {colors['terracotta']}; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 24px;">
             <div style="font-weight: 700; color: {colors['charcoal']}; font-size: 0.95rem; margin-bottom: 4px;">
@@ -65,8 +69,7 @@ else:
                 All local change detection workflows, benchmark datasets, and custom GeoTIFF/RGB uploads remain 100% operational without Earth Engine.
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
     with st.expander("How to Authenticate Google Earth Engine", expanded=False):
         st.markdown(
@@ -217,13 +220,12 @@ with act3:
 search_res = st.session_state.get("gee_search_res")
 if search_res:
     st.write("")
-    st.markdown(
+    render_html(
         f"""
         <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem; font-weight: 600; color: {colors['forest']}; margin-bottom: 8px;">
             Candidate Satellite Scenes
         </h4>
-        """,
-        unsafe_allow_html=True,
+        """
     )
     sc1, sc2 = st.columns(2)
     for col, key, label in ((sc1, "before", "Before Period Scenes"), (sc2, "after", "After Period Scenes")):
@@ -239,13 +241,12 @@ if search_res:
 preview_res = st.session_state.get("gee_preview_res")
 if preview_res:
     st.write("")
-    st.markdown(
+    render_html(
         f"""
         <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem; font-weight: 600; color: {colors['forest']}; margin-bottom: 8px;">
             Synthesized Median Surface Composites
         </h4>
-        """,
-        unsafe_allow_html=True,
+        """
     )
     pc1, pc2 = st.columns(2)
     pc1.image(preview_res["before"]["thumb_url"], caption="Before Median Composite (RGB)", use_container_width=True)
@@ -254,13 +255,12 @@ if preview_res:
     ndvi = preview_res.get("ndvi")
     if ndvi and ndvi.get("available"):
         st.write("")
-        st.markdown(
+        render_html(
             f"""
             <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem; font-weight: 600; color: {colors['forest']}; margin-bottom: 8px;">
                 Normalized Difference Vegetation Index (NDVI)
             </h4>
-            """,
-            unsafe_allow_html=True,
+            """
         )
         nc1, nc2, nc3 = st.columns(3)
         nc1.image(ndvi["before_ndvi_url"], caption="Before NDVI", use_container_width=True)
@@ -272,16 +272,15 @@ if preview_res:
 export_res = st.session_state.get("gee_export_res")
 if export_res:
     st.write("")
-    st.markdown(
+    render_html(
         f"""
         <h4 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem; font-weight: 600; color: {colors['forest']}; margin-bottom: 8px;">
             Export Pipeline & Model Handoff
         </h4>
-        """,
-        unsafe_allow_html=True,
+        """
     )
     if export_res.get("destination") == "local_geotiff" and export_res.get("before_path"):
-        st.markdown(
+        render_html(
             f"""
             <div style="background-color: {colors['card_bg']}; border: 1px solid {colors['forest']}; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
                 <div style="font-weight: 600; color: {colors['forest']}; margin-bottom: 4px;">
@@ -292,8 +291,7 @@ if export_res:
                     After: <code>{export_res.get('after_path')}</code>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
         if st.button("Transfer Pair to Change Detection Studio", type="primary"):
             st.session_state["gee_prepared_pair"] = export_res
