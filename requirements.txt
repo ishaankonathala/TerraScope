@@ -1,0 +1,45 @@
+# Core Deep Learning & Vision
+torch>=2.2.0
+torchvision>=0.17.0
+timm>=1.0.0
+
+# Scientific Computing & ML
+numpy>=2.0.0
+pandas>=2.2.3,<3.0.0
+scikit-learn>=1.5.0
+PyYAML>=6.0
+
+# Image & Geospatial Processing
+opencv-python>=4.9.0
+pillow>=10.3.0
+rasterio>=1.4.0
+geopandas>=1.0.0
+pyproj>=3.6.0
+shapely>=2.0.0
+matplotlib>=3.9.0
+
+# Google Earth Engine (Optional for cloud Sentinel-2 acquisition)
+earthengine-api>=1.0.0
+google-auth>=2.29.0
+
+# Backend API
+fastapi>=0.109.0
+uvicorn>=0.27.0
+pydantic>=2.7.0
+pydantic-settings>=2.2.0
+python-dotenv>=1.0.0
+python-multipart>=0.0.6
+
+# Frontend Dashboard
+streamlit>=1.38.0
+plotly>=5.22.0
+folium>=0.17.0
+
+# Experiment Tracking & Reporting
+tensorboard>=2.16.0
+reportlab>=4.1.0
+
+# Testing
+pytest>=8.0.0
+httpx>=0.27.0
+

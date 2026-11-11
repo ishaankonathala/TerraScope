@@ -1,0 +1,25 @@
+# Default Experiment Configuration (Apple Silicon M1 8GB & Cloud GPU compatible)
+seed: 42
+device: auto
+img_size: 256
+batch_size: 4
+epochs: 20
+lr: 0.0003
+weight_decay: 0.0001
+optimizer: adamw
+scheduler: cosine
+loss: bce_dice
+early_stopping_patience: 8
+threshold: 0.5
+
+models:
+  siamese_unet:
+    backbone: resnet18
+    pretrained: true
+  vit:
+    backbone: vit_tiny_patch16_224
+    pretrained: true
+  swin:
+    backbone: swin_tiny_patch4_window7_224
+    pretrained: true
+
