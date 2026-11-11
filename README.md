@@ -1,12 +1,20 @@
-# Vision Transformers for Satellite Land-Use Monitoring
+# TerraScope — Satellite Change Intelligence Platform
+
+> *See how the Earth changes.*
 
 An end-to-end geospatial deep-learning research platform for multi-temporal satellite image change detection, comparing **Siamese U-Net (CNN)**, **Vision Transformer (Siamese ViT)**, and **Swin Transformer (Hierarchical Siamese)** architectures under reproducible training, evaluation, explainability, and Google Earth Engine workflows.
 
 ---
 
-## 1. Project Overview
+## 1. Project Overview & Product Identity
 
-This system detects pixel-level land-use changes across paired bi-temporal satellite or aerial observations (`T1` before, `T2` after). Rather than assuming Transformer models automatically outperform Convolutional Neural Networks, the codebase provides standardized preprocessing, identical train/validation/test splits, matched loss/threshold evaluation, explainable AI visualizations, real-world area estimation, and interactive monitoring dashboards to establish comparative performance experimentally.
+**TerraScope** delivers research-grade satellite change intelligence with an editorial, earth-inspired interface. It detects pixel-level land-use changes across paired bi-temporal satellite or aerial observations (`T1` before, `T2` after). Rather than assuming Transformer models automatically outperform Convolutional Neural Networks, the codebase provides standardized preprocessing, identical train/validation/test splits, matched loss/threshold evaluation, explainable AI visualizations, real-world area estimation, and interactive monitoring dashboards to establish comparative performance experimentally.
+
+### Core Workflow
+- **STEP 1 — Select Images:** Pair upload (PNG/JPEG/GeoTIFF) or one-click demo samples with dimension/format validation.
+- **STEP 2 — Configure Detection:** Plain-English architecture selection (U-Net, ViT, Swin), sensitivity threshold slider, and optional advanced settings (tiling, normalization, post-processing).
+- **STEP 3 — Run Detection:** Single-action change detection with progress tracking.
+- **STEP 4 — Understand & Verify:** Clear summary (*"Changes detected in approximately X% of valid pixels"*), 3-tab visual comparison viewer, and download options (PDF, CSV, GeoTIFF, GeoJSON).
 
 ## 2. Problem Statement
 
