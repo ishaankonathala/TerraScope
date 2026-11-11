@@ -13,7 +13,15 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from ml.datasets import CustomPairDataset, LEVIRCDDataset, OSCDDataset
-from ml.evaluation import benchmark_models, plot_model_comparison
+from ml.evaluation import (
+    benchmark_models,
+    plot_confusion_matrix,
+    plot_model_comparison,
+    plot_prediction_samples,
+)
+from ml.models import get_model
+from ml.training.callbacks import load_checkpoint
+from ml.utils.device import detect_device
 
 
 def main() -> None:
@@ -29,6 +37,8 @@ def main() -> None:
     parser.add_argument("--experiments-dir", default=str(PROJECT_ROOT / "experiments"))
     parser.add_argument("--no-pretrained", action="store_true")
     parser.add_argument("--bands", nargs="+", default=["B04", "B03", "B02"])
+    parser.add_argument("--save-visuals", action="store_true", help="Save confusion matrices and sample predictions.")
+    parser.add_argument("--visual-samples", type=int, default=4, help="Number of qualitative prediction tiles to export.")
     args = parser.parse_args()
 
     ds_key = args.dataset.lower()
@@ -75,11 +85,62 @@ def main() -> None:
         experiments_dir=args.experiments_dir,
         is_synthetic=False,
     )
-    chart_path = (
-        PROJECT_ROOT / "outputs" / "visualizations" / f"{payload['benchmark_id']}_comparison.png"
-    )
+    viz_dir = PROJECT_ROOT / "outputs" / "visualizations"
+    viz_dir.mkdir(parents=True, exist_ok=True)
+    chart_path = viz_dir / f"{payload['benchmark_id']}_comparison.png"
     plot_model_comparison(payload, chart_path)
     print(f"Benchmark saved: {payload['benchmark_id']} | Chart: {chart_path}")
+
+    if args.save_visuals:
+        # 1. Save confusion matrices for each evaluated model
+        for rec in payload.get("models", []):
+            cm = rec.get("confusion_matrix")
+            if cm:
+                cm_path = viz_dir / f"{payload['benchmark_id']}_{rec['model_name']}_cm.png"
+                plot_confusion_matrix(cm, cm_path, title=f"Confusion Matrix — {rec['display_name']}")
+                print(f"  Confusion matrix saved: {cm_path.name}")
+
+        # 2. Export sample qualitative prediction masks
+        dev = detect_device(args.device)
+        try:
+            first_batch = next(iter(loader))
+            b_t1 = first_batch["before"].to(dev)
+            b_t2 = first_batch["after"].to(dev)
+            b_gt = first_batch["mask"].cpu()
+            n_samples = min(int(b_t1.shape[0]), max(int(args.visual_samples), 1))
+
+            for cfg in model_configs:
+                m_name = cfg["model_name"]
+                model = get_model(
+                    m_name,
+                    in_channels=in_ch,
+                    img_size=args.patch_size,
+                    pretrained=cfg["pretrained"],
+                    allow_random_fallback=True,
+                ).to(dev)
+                if cfg.get("checkpoint_path"):
+                    load_checkpoint(cfg["checkpoint_path"], model, map_location=dev)
+                model.eval()
+                import torch
+                with torch.no_grad():
+                    logits = model(b_t1, b_t2)
+                    probs = torch.sigmoid(logits).squeeze(1).cpu().numpy()
+
+                pred_dir = viz_dir / "predictions" / f"{payload['benchmark_id']}_{m_name}"
+                for s_idx in range(n_samples):
+                    pred_path = pred_dir / f"sample_{s_idx:02d}.png"
+                    plot_prediction_samples(
+                        before=b_t1[s_idx],
+                        after=b_t2[s_idx],
+                        ground_truth=b_gt[s_idx],
+                        prediction=probs[s_idx] > args.threshold,
+                        output_path=pred_path,
+                        title=f"{rec['display_name']} Prediction Sample #{s_idx + 1}",
+                    )
+                print(f"  Exported {n_samples} visual prediction tiles to: {pred_dir}")
+        except Exception as exc:
+            print(f"Warning: could not export visual prediction samples: {exc}")
+
 
 
 if __name__ == "__main__":

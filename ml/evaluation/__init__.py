@@ -10,6 +10,7 @@ from ml.evaluation.metrics import ChangeDetectionMetrics, MetricAccumulator, com
 from ml.evaluation.visualizations import (
     plot_confusion_matrix,
     plot_model_comparison,
+    plot_prediction_samples,
     plot_training_curves,
 )
 
@@ -23,6 +24,7 @@ __all__ = [
     "load_experiment_summaries",
     "plot_confusion_matrix",
     "plot_model_comparison",
+    "plot_prediction_samples",
     "plot_training_curves",
 ]
 
