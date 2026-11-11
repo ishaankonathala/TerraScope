@@ -2,7 +2,14 @@
 
 from ml.datasets.custom_dataset import CustomPairDataset, prepare_custom_dataset
 from ml.datasets.levir_cd import LEVIR_CD_URL, LEVIRCDDataset
-from ml.datasets.oscd import OSCD_TEST_CITIES, OSCD_TRAIN_CITIES, OSCD_URL, SENTINEL2_13_BANDS, OSCDDataset
+from ml.datasets.oscd import (
+    OSCD_TEST_CITIES,
+    OSCD_TRAIN_CITIES,
+    OSCD_URL,
+    SENTINEL2_13_BANDS,
+    OSCDDataset,
+    load_oscd_mask,
+)
 from ml.datasets.transforms import PairedChangeTransform, PairedTransformConfig
 
 __all__ = [
@@ -16,6 +23,7 @@ __all__ = [
     "PairedChangeTransform",
     "PairedTransformConfig",
     "SENTINEL2_13_BANDS",
+    "load_oscd_mask",
     "prepare_custom_dataset",
 ]
 

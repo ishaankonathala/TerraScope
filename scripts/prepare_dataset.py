@@ -41,14 +41,17 @@ def main() -> None:
     elif args.dataset == "oscd":
         counts = {}
         for sp in ("train", "val", "test"):
-            ds = OSCDDataset(
-                args.source_dir,
-                split=sp,
-                bands=tuple(args.bands),
-                patch_size=args.patch_size,
-                stride=args.stride,
-            )
-            counts[sp] = len(ds)
+            try:
+                ds = OSCDDataset(
+                    args.source_dir,
+                    split=sp,
+                    bands=tuple(args.bands),
+                    patch_size=args.patch_size,
+                    stride=args.stride,
+                )
+                counts[sp] = len(ds)
+            except Exception as exc:
+                counts[sp] = f"Unavailable/Error: {exc}"
         print("Verified OSCD patch counts:", counts)
 
 

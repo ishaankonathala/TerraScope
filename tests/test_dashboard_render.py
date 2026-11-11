@@ -38,3 +38,4 @@ def test_dashboard_overview_renders_native_metrics_and_no_raw_html() -> None:
         md_text = md.value or ""
         for snippet in forbidden_snippets:
             assert snippet not in md_text, f"Found raw HTML snippet '{snippet}' in markdown: {md_text}"
+

@@ -353,6 +353,12 @@ def load_mask(path: str | Path, max_size_mb: float = 50.0) -> np.ndarray:
         except (UnidentifiedImageError, OSError) as exc:
             raise ImageValidationError(f"Corrupted mask file '{p.name}': {exc}") from exc
 
+    unique_vals = set(np.unique(arr))
+    # Handle OSCD encoding: 1 = no change, 2 = change (0 = nodata)
+    if 2 in unique_vals and unique_vals.issubset({0, 1, 2}):
+        return (arr == 2).astype(np.uint8)
+    if 255 in unique_vals:
+        return (arr == 255).astype(np.uint8)
     return (arr > 0).astype(np.uint8)
 
 
