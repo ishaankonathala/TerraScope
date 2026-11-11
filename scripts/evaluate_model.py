@@ -19,7 +19,7 @@ from ml.evaluation import (
     plot_model_comparison,
     plot_prediction_samples,
 )
-from ml.models import get_model
+from ml.models import MODEL_REGISTRY, get_model
 from ml.training.callbacks import load_checkpoint
 from ml.utils.device import detect_device
 
@@ -35,6 +35,7 @@ def main() -> None:
     parser.add_argument("--device", default="auto")
     parser.add_argument("--checkpoint-dir", default=str(PROJECT_ROOT / "models" / "checkpoints"))
     parser.add_argument("--experiments-dir", default=str(PROJECT_ROOT / "experiments"))
+    parser.add_argument("--viz-dir", default=str(PROJECT_ROOT / "outputs" / "visualizations"))
     parser.add_argument("--no-pretrained", action="store_true")
     parser.add_argument("--bands", nargs="+", default=["B04", "B03", "B02"])
     parser.add_argument("--save-visuals", action="store_true", help="Save confusion matrices and sample predictions.")
@@ -85,7 +86,7 @@ def main() -> None:
         experiments_dir=args.experiments_dir,
         is_synthetic=False,
     )
-    viz_dir = PROJECT_ROOT / "outputs" / "visualizations"
+    viz_dir = Path(args.viz_dir)
     viz_dir.mkdir(parents=True, exist_ok=True)
     chart_path = viz_dir / f"{payload['benchmark_id']}_comparison.png"
     plot_model_comparison(payload, chart_path)
@@ -111,6 +112,7 @@ def main() -> None:
 
             for cfg in model_configs:
                 m_name = cfg["model_name"]
+                disp_name = MODEL_REGISTRY.get(m_name, {}).get("display_name", m_name)
                 model = get_model(
                     m_name,
                     in_channels=in_ch,
@@ -135,7 +137,7 @@ def main() -> None:
                         ground_truth=b_gt[s_idx],
                         prediction=probs[s_idx] > args.threshold,
                         output_path=pred_path,
-                        title=f"{rec['display_name']} Prediction Sample #{s_idx + 1}",
+                        title=f"{disp_name} Prediction Sample #{s_idx + 1}",
                     )
                 print(f"  Exported {n_samples} visual prediction tiles to: {pred_dir}")
         except Exception as exc:

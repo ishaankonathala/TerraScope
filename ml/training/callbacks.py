@@ -79,6 +79,7 @@ class ModelCheckpointManager:
         config: dict[str, Any],
         is_best: bool,
         training_status: str = "fine_tuned",
+        scaler: Any = None,
     ) -> Path:
         import shutil
 
@@ -88,6 +89,7 @@ class ModelCheckpointManager:
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
             "scheduler_state_dict": scheduler.state_dict() if scheduler is not None else None,
+            "scaler_state_dict": scaler.state_dict() if scaler is not None and hasattr(scaler, "state_dict") else None,
             "model_info": model.model_info() if hasattr(model, "model_info") else {},
             "training_status": training_status,
             "config": config,
@@ -116,9 +118,10 @@ def load_checkpoint(
     model: nn.Module,
     optimizer: torch.optim.Optimizer | None = None,
     scheduler: Any = None,
+    scaler: Any = None,
     map_location: str | torch.device = "cpu",
 ) -> dict[str, Any]:
-    """Load model (and optionally optimizer/scheduler) weights from a saved checkpoint."""
+    """Load model, optimizer, scheduler, and AMP scaler state from a saved checkpoint."""
     path = Path(checkpoint_path)
     if not path.is_file():
         raise FileNotFoundError(f"Checkpoint file not found: {path}")
@@ -134,6 +137,8 @@ def load_checkpoint(
         optimizer.load_state_dict(ckpt["optimizer_state_dict"])
     if scheduler is not None and ckpt.get("scheduler_state_dict") is not None:
         scheduler.load_state_dict(ckpt["scheduler_state_dict"])
+    if scaler is not None and ckpt.get("scaler_state_dict") is not None and hasattr(scaler, "load_state_dict"):
+        scaler.load_state_dict(ckpt["scaler_state_dict"])
     return ckpt
 
 

@@ -139,6 +139,7 @@ class ChangeDetectionTrainer:
                 self.model,
                 optimizer=self.optimizer,
                 scheduler=self.scheduler,
+                scaler=getattr(self, "scaler", None),
                 map_location=self.device,
             )
             self.start_epoch = int(ckpt.get("epoch", 0)) + 1
@@ -245,6 +246,7 @@ class ChangeDetectionTrainer:
                     config=self.config.to_dict(),
                     is_best=is_best,
                     training_status=training_status,
+                    scaler=getattr(self, "scaler", None),
                 )
 
                 self.exp_logger.log_epoch(
