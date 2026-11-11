@@ -106,3 +106,4 @@ def test_resume_intact_when_not_force_retrain(tmp_path: Path) -> None:
 
     assert "--resume" in cmd
     assert str(latest_p) in cmd
+
