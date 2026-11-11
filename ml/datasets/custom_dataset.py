@@ -137,9 +137,8 @@ class CustomPairDataset(Dataset):
             "sample_id": b_path.stem,
             "before_path": str(b_path),
             "after_path": str(a_path),
-            "label_path": str(m_path) if m_path is not None else None,
-            "alignment": align_report.to_dict(),
-            "geospatial": before_aligned.metadata.to_dict(),
+            "label_path": str(m_path) if m_path is not None else "",
+            "alignment_method": align_report.method,
         }
         return out
 
