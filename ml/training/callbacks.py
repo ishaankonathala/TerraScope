@@ -86,6 +86,7 @@ class ModelCheckpointManager:
         payload = {
             "epoch": epoch,
             "best_metric": best_metric,
+            "experiment_id": config.get("experiment_id"),
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
             "scheduler_state_dict": scheduler.state_dict() if scheduler is not None else None,

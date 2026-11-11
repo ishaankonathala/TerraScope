@@ -92,6 +92,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num-workers", type=int, default=0)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
     parser.add_argument("--early-stopping-patience", type=int, default=8)
+    parser.add_argument("--experiment-id", default=None)
     return parser.parse_args()
 
 
@@ -126,6 +127,7 @@ def main() -> None:
         checkpoint_dir=args.checkpoint_dir,
         experiments_dir=args.experiments_dir,
         backup_dir=args.backup_dir,
+        experiment_id=args.experiment_id,
         early_stopping_patience=args.early_stopping_patience,
         num_workers=args.num_workers,
     )

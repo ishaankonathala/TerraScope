@@ -43,6 +43,10 @@ models/checkpoints/*
 # Experiment logs and generated outputs
 experiments/logs/*
 !experiments/logs/.gitkeep
+experiments/configs/*
+!experiments/configs/.gitkeep
+experiments/runs/*
+!experiments/runs/.gitkeep
 outputs/change_maps/*
 !outputs/change_maps/.gitkeep
 outputs/attention_maps/*
